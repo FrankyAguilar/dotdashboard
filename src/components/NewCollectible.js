@@ -12,7 +12,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import ImageUploader from 'react-images-upload';
 import  firebaseConf from '../firebase/firebase';
-import firestore from 'firebase/firestore';
 
 var style = {
     merginTop: 20
@@ -21,6 +20,7 @@ var style = {
 class NewCollectible extends React.Component {
 
     constructor(props) {
+
         super(props);
     
         this.handleChange = this.handleChange.bind(this);
@@ -28,40 +28,48 @@ class NewCollectible extends React.Component {
         this.handleImage = this.handleImage.bind(this);
 
         this.state = {
+
             name: '',
             description:'',
             attributes: {},
             image: '',
             background_color: 'FFFFFF',
             external_url: ''
+
           };
 
     }
 
     handleChange(event) {
-        this.setState({[event.target.name] : event.target.value});
+        this.setState({
+          
+            [event.target.name] : event.target.value
+          
+        });
+
+        console.log(this.state)
     }
 
     handleSubmit(event){
 
       event.preventDefault();
 
-      var db = firebaseConf.firestore();
-      db.settings({
-        timestampsInSnapshots: true
-      });
+      // var db = firebaseConf.firestore();
+      // db.settings({
+      //   timestampsInSnapshots: true
+      // });
 
-      db.collection("Collectibles").add(this.state)
-      .then(function(docRef) {
-          console.log("Document written with ID: ", docRef.id);
-      })
-      .catch(function(error) {
-          console.error("Error adding document: ", error);
-      });
+      // db.collection("Collectibles").add(this.state)
+      // .then(function(docRef) {
+      //     console.log("Document written with ID: ", docRef.id);
+      // })
+      // .catch(function(error) {
+      //     console.error("Error adding document: ", error);
+      // });
 
-      return;
+      // return;
 
-      firebaseConf.database().ref('collectibles/items').push(this.state).then(() => {
+      firebaseConf.database().ref('collectibles/items').push(this.state.form).then(() => {
         alert('success', 'Your message was sent successfull');
       }).catch(() => {
         alert('danger', 'Your message could not be sent');
@@ -87,27 +95,29 @@ class NewCollectible extends React.Component {
       }, success => {
         uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
           var name = 'https://storage.googleapis.com/dotwallet.appspot.com/' + imagesRef;
-          this.setState({image: name});
+          
+
+          this.setState({
+              image: name
+          });
+
           console.log('File available at', name);
         });
       });
+    }
 
-  }
-	
     
-    render() {
-        
-        function FieldGroup({ id, label, help, ...props }) {
-            return (
-              <FormGroup controlId={id}>
-                <ControlLabel>{label}</ControlLabel>
-                <FormControl {...props} />
-                {help && <HelpBlock>{help}</HelpBlock>}
-              </FormGroup>
-            );
-          }
-
-
+  render() {
+      
+    function FieldGroup({ id, label, help, ...props }) {
+        return (
+          <FormGroup controlId={id}>
+            <ControlLabel>{label}</ControlLabel>
+            <FormControl {...props} />
+            {help && <HelpBlock>{help}</HelpBlock>}
+          </FormGroup>
+        );
+      }
 
     return (
         <div className="container" style={style}>
@@ -119,17 +129,17 @@ class NewCollectible extends React.Component {
             <p>Please provide all required fields to Mint a DotWallet Collectible Item.</p>
 
             <FormGroup controlId="formControlName">
-            <ControlLabel>Name</ControlLabel>
-            <FormControl
-            type="text"
-            name="name"
-            value={this.state.value}
-            placeholder="Enter text"
-            onChange={this.handleChange}
-            />
+              <ControlLabel>Name</ControlLabel>
+              <FormControl
+                type="text"
+                name="name"
+                value={this.state.value}
+                placeholder="Enter text"
+                onChange={this.handleChange}
+              />
             </FormGroup>
-           
-           <FormGroup controlId="formControlDescription" >
+            
+            <FormGroup controlId="formControlDescription" >
                 <ControlLabel>Description</ControlLabel>
                 <FormControl
                 componentClass="textarea" 
@@ -151,23 +161,23 @@ class NewCollectible extends React.Component {
                 help="Must conform to JSON protocol."/>
             </FormGroup>
 
-           
+            
             <Well>
             <ImageUploader
             withPreview = {true}
-                	withIcon={true}
-                	buttonText='Choose image'
-                	onChange={this.handleImage}
-                	imgExtension={['.jpg', '.gif', '.png', '.gif']}
-                	maxFileSize={ 5242880 }
+                  withIcon={true}
+                  buttonText='Choose image'
+                  onChange={this.handleImage}
+                  imgExtension={['.jpg', '.gif', '.png', '.gif']}
+                  maxFileSize={ 5242880 }
             />
             </Well>
 
             <hr />
             <FormGroup>
-                <ControlLabel>Minting Address</ControlLabel>
+                <ControlLabel id="mintingAddress">Minting Address</ControlLabel>
                 <FieldGroup
-                id="formControlsText"
+                id="mintingAddress"
                 type="text"
                 label="Name"
                 value={this.state.creator}
@@ -183,7 +193,7 @@ class NewCollectible extends React.Component {
         </div>
         );
     }
-  }
+}
 
 export default NewCollectible;
 
