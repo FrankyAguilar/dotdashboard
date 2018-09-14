@@ -24,35 +24,49 @@ class NewCollectible extends React.Component {
         super(props);
     
         this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
         this.handleImage = this.handleImage.bind(this);
+
+        this.handleSubmit = this.handleSubmit.bind(this);
 
         this.state = {
 
             name: '',
             description:'',
-            attributes: {},
+            type: '',
+            attributes: {
+              tags: []
+            },
             image: '',
             background_color: 'FFFFFF',
-            external_url: ''
+            external_url: 'https://mydotwallet.com'
 
           };
 
     }
 
     handleChange(event) {
+      if (event.target.name == "attributes") {
         this.setState({
-          
-            [event.target.name] : event.target.value
-          
-        });
+          attributes : 
+          { 
+            tags : event.target.value.split(', ') 
+          }
 
+        });
         console.log(this.state)
+
+        return;
+      }
+      
+      //Other Fields
+      this.setState({
+          [event.target.name] : event.target.value
+      });
     }
+
 
     handleSubmit(event){
 
-      event.preventDefault();
 
       // var db = firebaseConf.firestore();
       // db.settings({
@@ -69,20 +83,25 @@ class NewCollectible extends React.Component {
 
       // return;
 
-      firebaseConf.database().ref('collectibles/items').push(this.state.form).then(() => {
-        alert('success', 'Your message was sent successfull');
-      }).catch(() => {
-        alert('danger', 'Your message could not be sent');
+      firebaseConf.database().ref('collectibles/items').push(this.state).then((result) => {
+        alert(result);
+        console.log(result);
+      }).catch((error) => {
+        alert(error);
       });
+
+      event.preventDefault();
 
     }
 
     handleImage(pictureFiles, pictureDataURLs) {
+      
 
       if (pictureFiles.length == 0){
         return;
       }
       var date = Date.now();
+      var imageType = pictureFiles[0].type;
       var imagesRef = `dwc-${date}-${pictureFiles[0].name}`;
       var storageRef = firebaseConf.storage().ref().child(imagesRef);
       var uploadTask = storageRef.put(pictureFiles[0]);
@@ -98,10 +117,13 @@ class NewCollectible extends React.Component {
           
 
           this.setState({
-              image: name
+              image: name,
+              type: imageType.replace("image/", ""),
+              creation_timestamp: Date(date)
           });
 
           console.log('File available at', name);
+          console.log(this.state)
         });
       });
     }
@@ -150,13 +172,13 @@ class NewCollectible extends React.Component {
             />
             </FormGroup>
 
-            <FormGroup controlId="formControlsTextarea">
+            <FormGroup controlId="formControlsAttributes">
                 <ControlLabel>Additional Data: <Label>JSON PROPERTY FORMAT</Label></ControlLabel>
                 <FormControl 
                 componentClass="textarea" 
+                value={this.state.value}
                 placeholder="" 
-                name="additionalData"
-                value={this.state.attributes}
+                name="attributes"
                 onChange={this.handleChange}
                 help="Must conform to JSON protocol."/>
             </FormGroup>
